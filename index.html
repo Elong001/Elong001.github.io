@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="GBK">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>黑客登录页面</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #0e0e0e;
+    font-family: 'Courier New', Courier, monospace;
+    color: #33FF33;
+}
+
+.login-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.login-container {
+    padding: 20px;
+    background-color: #121212;
+    border: 1px solid #33FF33;
+    box-shadow: 0 0 10px #33FF33;
+}
+
+h1 {
+    text-align: center;
+    color: #33FF33;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 8px;
+    background-color: #0e0e0e;
+    border: 1px solid #33FF33;
+    color: #33FF33;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #33FF33;
+    color: #0e0e0e;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+</style>
+</head>
+<body>
+<div class="login-wrapper">
+    <div class="login-container">
+        <h1>Login</h1>
+        <form>
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username">
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password">
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
