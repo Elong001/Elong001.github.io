@@ -3,79 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hacker Style Login Page</title>
+<title>Open My Mind</title>
 <style>
-body {
+  body {
+    font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0;
-    background-color: #0e0e0e;
-    font-family: 'Courier New', Courier, monospace;
-    color: #33FF33;
-}
-
-.login-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-}
-
-.login-container {
     padding: 20px;
-    background-color: #121212;
-    border: 1px solid #33FF33;
-    box-shadow: 0 0 10px #33FF33;
-}
-
-h1 {
     text-align: center;
-    color: #33FF33;
-}
-
-.input-group {
-    margin-bottom: 15px;
-}
-
-.input-group label {
+  }
+  .header {
+    margin-bottom: 20px;
+  }
+  .profile-circle {
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    display: inline-block;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .form-container {
+    margin-bottom: 20px;
+  }
+  input {
     display: block;
-}
-
-.input-group input {
-    width: 100%;
-    padding: 8px;
-    background-color: #0e0e0e;
-    border: 1px solid #33FF33;
-    color: #33FF33;
-}
-
-button {
-    width: 100%;
+    margin: 10px auto;
     padding: 10px;
-    background-color: #33FF33;
-    color: #0e0e0e;
-    border: none;
+    width: 200px;
+  }
+  .submit-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
     cursor: pointer;
-}
-
-button:hover {
-    opacity: 0.8;
-}
+  }
 </style>
 </head>
 <body>
-<div class="login-wrapper">
-    <div class="login-container">
-        <h1>Login</h1>
-        <form>
-            <div class="input-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username">
-            </div>
-            <div class="input-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password">
-            </div>
-            <button type="submit">Login</button>
-        </form>
-    </div>
+<div class="header">
+  <h1>open my mind</h1>
 </div>
+<div class="profile-circle">
+  <img src="profile-icon.png" alt="Profile" style="width:50px;height:50px;">
+  <div>姓名</div>
+</div>
+<div class="form-container">
+  <form>
+    <input type="text" id="id" name="id" placeholder="ID">
+    <input type="password" id="password" name="password" placeholder="密码">
+    <input type="submit" value="登录" class="submit-button">
+  </form>
+</div>
+</body>
+</html>
