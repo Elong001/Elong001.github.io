@@ -1,62 +1,239 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>大帅逼</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    text-align: center;
-  }
-  .header {
-    margin-bottom: 20px;
-  }
-  .profile-circle {
-    background-color: #f0f0f0;
-    border-radius: 50%;
-    display: inline-block;
-    padding: 20px;
-    margin-bottom: 20px;
-  }
-  .form-container {
-    margin-bottom: 20px;
-  }
-  input {
-    display: block;
-    margin: 10px auto;
-    padding: 10px;
-    width: 200px;
-  }
-  .submit-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-  }
-</style>
+    <meta charset="UTF-8">
+    <title>英语单词大作战</title>
+    <style>
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .team-area {
+            background: #f0f9ff;
+            border: 3px solid #1890ff;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 500px;
+            position: relative;
+        }
+        #gameControl {
+            text-align: center;
+            margin: 20px;
+        }
+        #controlBtn {
+            padding: 15px 40px;
+            font-size: 24px;
+            background: #ff4d4f;
+            color: white;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        #timer {
+            text-align: center;
+            font-size: 32px;
+            color: #fa541c;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .chinese-prompt {
+            text-align: center;
+            font-size: 28px;
+            color: #2f54eb;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .word-btn {
+            background: #fff;
+            border: 2px solid #40a9ff;
+            border-radius: 25px;
+            padding: 12px 24px;
+            margin: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .word-btn.correct {
+            background: #73d13d !important;
+            transform: scale(0.9);
+        }
+        .word-btn.wrong {
+            background: #ff4d4f !important;
+            opacity: 0.7;
+        }
+        .score {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #1890ff;
+        }
+    </style>
 </head>
 <body>
-<div class="header">
-  <h1>龙思益是大帅逼</h1>
-</div>
-<div class="profile-circle">
-  <img src="profile-icon.png" alt="Profile" style="width:50px;height:50px;">
-  <div>龙思益是大帅逼</div>
-</div>
-<div class="form-container">
-  <form>
-    <input type="text" id="id" name="id" placeholder="ID">
-    <input type="password" id="password" name="password" placeholder="密码">
-    <input type="submit" value="登录" class="submit-button">
-  </form>
-</div>
+    <div id="gameControl">
+        <button id="controlBtn">游戏开始</button>
+    </div>
+    <div id="timer">剩余时间：3:00</div>
+     
+    <div style="text-align: center; padding: 20px;">
+        <input type="file" id="wordFile" accept=".txt"
+               style="display: none;">
+        <button
+                style="padding: 12px 24px; background: #1890ff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            上传单词表 (.txt)
+        </button>
+    </div>
+ 
+    <div class="container">
+        <div class="chinese-prompt">请选择：<span class="current-prompt"></span></div>
+        <div class="chinese-prompt">请选择：<span class="current-prompt"></span></div>
+         
+        <div class="team-area" id="team1">
+            <div class="score">得分: 0</div>
+        </div>
+        <div class="team-area" id="team2">
+            <div class="score">得分: 0</div>
+        </div>
+    </div>
+ 
+<script>
+    let isPlaying = false;
+    let currentWords = [];
+    let currentPrompt = '';
+    let gameTimer;
+    let timeLeft = 180;
+ 
+    function toggleGame() {
+        const btn = document.getElementById('controlBtn');
+        if (!isPlaying) {
+            if (currentWords.length === 0) {
+                alert('请先上传单词表！');
+                return;
+            }
+            btn.textContent = '游戏中...';
+            btn.style.background = '#52c41a';
+            startTimer();
+            startRound();
+            isPlaying = true;
+        } else {
+            endGame();
+        }
+    }
+ 
+    function loadWords(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            currentWords = e.target.result.split('\n')
+                .filter(line => line.trim())
+                .map(line => {
+                    const [english, chinese] = line.split(',');
+                    return { 
+                        english: english.trim(), 
+                        chinese: chinese.trim(),
+                        used: false
+                    };
+                });
+            setupGame();
+        };
+        reader.readAsText(file);
+    }
+ 
+    function setupGame() {
+        document.querySelectorAll('.word-btn').forEach(btn => btn.remove());
+         
+        const createTeamWords = (container) => {
+            const shuffled = [...currentWords].sort(() => Math.random() - 0.5);
+            shuffled.forEach(word => {
+                const btn = document.createElement('button');
+                btn.className = 'word-btn';
+                btn.textContent = word.english;
+                btn.onclick = () => handleWordClick(word.english, word.chinese, btn);
+                container.insertBefore(btn, container.querySelector('.score'));
+            });
+        };
+ 
+        createTeamWords(document.getElementById('team1'));
+        createTeamWords(document.getElementById('team2'));
+    }
+ 
+    function handleWordClick(english, chinese, btn) {
+        if (!isPlaying) return;
+         
+        if (chinese === currentPrompt) {
+            btn.classList.add('correct');
+            const container = btn.closest('.team-area');
+            const scoreElement = container.querySelector('.score');
+            scoreElement.textContent = `得分: ${parseInt(scoreElement.textContent.match(/\d+/)) + 10}`;
+             
+            setTimeout(() => {
+                btn.remove();
+                startRound();
+            }, 500);
+        } else {
+            btn.classList.add('wrong');
+            setTimeout(() => btn.classList.remove('wrong'), 500);
+        }
+    }
+ 
+    function startRound() {
+        const availableWords = currentWords.filter(word => !word.used);
+        if (availableWords.length === 0) {
+            document.querySelectorAll('.current-prompt').forEach(span => {
+                span.textContent = "所有单词已完成！";
+            });
+            return;
+        }
+ 
+        const randomIndex = Math.floor(Math.random() * availableWords.length);
+        currentPrompt = availableWords[randomIndex].chinese;
+        currentWords = currentWords.map(word => 
+            word.chinese === currentPrompt ? {...word, used: true} : word
+        );
+ 
+        document.querySelectorAll('.current-prompt').forEach(span => {
+            span.textContent = currentPrompt;
+        });
+    }
+ 
+    function startTimer() {
+        clearInterval(gameTimer);
+        gameTimer = setInterval(() => {
+            timeLeft--;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `剩余时间：${minutes}:${seconds.toString().padStart(2, '0')}`;
+             
+            if (timeLeft <= 0) endGame();
+        }, 1000);
+    }
+ 
+    function endGame() {
+        clearInterval(gameTimer);
+        const btn = document.getElementById('controlBtn');
+        btn.textContent = '游戏开始';
+        btn.style.background = '#ff4d4f';
+        isPlaying = false;
+         
+        // 显示当前得分后清零
+        const score1 = document.querySelector('#team1 .score').textContent;
+        const score2 = document.querySelector('#team2 .score').textContent;
+        alert(`游戏结束！\n第一组得分：${score1}\n第二组得分：${score2}`);
+         
+        // 重置所有状态
+        document.querySelectorAll('.score').forEach(span => span.textContent = '得分: 0');
+        timeLeft = 180;
+        document.getElementById('timer').textContent = '剩余时间：3:00';
+        currentWords = currentWords.map(word => ({...word, used: false}));
+        setupGame();
+    }
+</script>
 </body>
 </html>
