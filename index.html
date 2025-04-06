@@ -1,239 +1,420 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>英语单词大作战</title>
-    <style>
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .team-area {
-            background: #f0f9ff;
-            border: 3px solid #1890ff;
-            border-radius: 15px;
-            padding: 20px;
-            min-height: 500px;
-            position: relative;
-        }
-        #gameControl {
-            text-align: center;
-            margin: 20px;
-        }
-        #controlBtn {
-            padding: 15px 40px;
-            font-size: 24px;
-            background: #ff4d4f;
-            color: white;
-            border-radius: 30px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        #timer {
-            text-align: center;
-            font-size: 32px;
-            color: #fa541c;
-            margin: 10px 0;
-            font-weight: bold;
-        }
-        .chinese-prompt {
-            text-align: center;
-            font-size: 28px;
-            color: #2f54eb;
-            margin: 20px 0;
-            font-weight: bold;
-        }
-        .word-btn {
-            background: #fff;
-            border: 2px solid #40a9ff;
-            border-radius: 25px;
-            padding: 12px 24px;
-            margin: 8px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .word-btn.correct {
-            background: #73d13d !important;
-            transform: scale(0.9);
-        }
-        .word-btn.wrong {
-            background: #ff4d4f !important;
-            opacity: 0.7;
-        }
-        .score {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            font-size: 24px;
-            color: #1890ff;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>豪华抽奖系统-完整版</title>
+  <style>
+    /* 添加弹窗动画 */
+    #calendar-modal {
+      /* 原有样式... */
+      animation: modalSlide 0.3s ease-out;
+    }
+
+    @keyframes modalSlide {
+      from {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+      }
+      to {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+      }
+    }
+
+    /* 重置按钮悬停效果 */
+    button[onclick="resetData()"]:hover {
+      background: #c0392b !important;
+    }
+
+    /* 基础样式 */
+    :root {
+      --gold: #ffd700;
+      --silver: #c0c0c0;
+      --bronze: #cd7f32;
+      --basic: #666;
+    }
+
+    body {
+      font-family: 'Arial Black', sans-serif;
+      background: #1a1a1a;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+
+    /* 奖品格子布局 */
+    #lottery-wheel {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      max-width: 1200px;
+      margin: 40px auto;
+    }
+
+    .prize-item {
+      background: rgba(255, 255, 255, 0.1);
+      border: 3px solid;
+      padding: 15px;
+      border-radius: 15px;
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .S-class {
+      border-color: var(--gold);
+    }
+
+    .A-class {
+      border-color: var(--silver);
+    }
+
+    .B-class {
+      border-color: var(--bronze);
+    }
+
+    .C-class {
+      border-color: var(--basic);
+    }
+
+    .prize-image {
+      width: 120px;
+      height: 120px;
+      margin: 10px auto;
+      background-size: contain;
+    }
+
+    /* 控制区域 */
+    #controls {
+      text-align: center;
+      margin: 30px 0;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      background: #e74c3c;
+      border: none;
+      border-radius: 25px;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    /* 抽奖结果弹窗 */
+    .result-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.95);
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      z-index: 1000;
+      display: none;
+      border: 3px solid;
+    }
+
+    /* 签到日历 */
+    #calendar-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      padding: 20px;
+      border-radius: 15px;
+      display: none;
+    }
+
+    .calendar-day {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .signed {
+      background: #2ecc71 !important;
+    }
+
+    /* 动画效果 */
+    @keyframes zoomIn {
+      0% {
+        transform: scale(0);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .prize-item {
+      animation: float 3s ease-in-out infinite;
+    }
+  </style>
 </head>
 <body>
-    <div id="gameControl">
-        <button id="controlBtn">游戏开始</button>
-    </div>
-    <div id="timer">剩余时间：3:00</div>
-     
-    <div style="text-align: center; padding: 20px;">
-        <input type="file" id="wordFile" accept=".txt"
-               style="display: none;">
-        <button
-                style="padding: 12px 24px; background: #1890ff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-            上传单词表 (.txt)
-        </button>
-    </div>
- 
-    <div class="container">
-        <div class="chinese-prompt">请选择：<span class="current-prompt"></span></div>
-        <div class="chinese-prompt">请选择：<span class="current-prompt"></span></div>
-         
-        <div class="team-area" id="team1">
-            <div class="score">得分: 0</div>
-        </div>
-        <div class="team-area" id="team2">
-            <div class="score">得分: 0</div>
-        </div>
-    </div>
- 
+<!-- 抽奖界面 -->
+<h1 style="text-align: center; margin-top: 0">🎉 每日豪华大抽奖 🎉</h1>
+
+<div id="lottery-wheel">
+  <div class="prize-item S-class">
+    <div class="prize-image" style="background-image: url('img/S.png')"></div>
+    S级神秘大奖<br>
+    <span id="s-prob">0.5%</span>
+  </div>
+  <div class="prize-item A-class">
+    <div class="prize-image" style="background-image: url('img/A.png')"></div>
+    A级稀有奖励<br>
+    5%
+  </div>
+  <div class="prize-item B-class">
+    <div class="prize-image" style="background-image: url('img/B.png')"></div>
+    B级超值礼包<br>
+    15%
+  </div>
+  <div class="prize-item C-class">
+    <div class="prize-image" style="background-image: url('img/C.png')"></div>
+    C级安慰奖励<br>
+    剩余概率
+  </div>
+</div>
+
+<div id="controls">
+  <button onclick="drawLottery()">
+    🎰 立即抽奖 (剩余: <span id="chances">5</span>)
+  </button>
+  <button onclick="showCalendar()" style="margin-left: 20px; background: #3498db">
+    📅 每日签到
+  </button>
+  <!-- 新增重置按钮 -->
+  <button onclick="resetData()" style="background: #e74c3c; margin-left: 20px">
+    🔄 重置数据
+  </button>
+  <div style="margin-top: 20px">
+    🔥 保底进度: <span id="counter">0</span>/200<br>
+    🎯 累计抽奖: <span id="total-counter">0</span>
+  </div>
+</div>
+
+<!-- 抽奖结果弹窗 -->
+<div id="result-modal" class="result-modal">
+  <div id="result-image" class="prize-image" style="width: 200px; height: 200px"></div>
+  <h2 id="result-text" style="margin: 20px 0"></h2>
+  <button onclick="closeResult()">关闭</button>
+</div>
+
+<!-- 签到日历 -->
+<div id="calendar-modal">
+  <div style="display: flex; justify-content: space-between; align-items: center">
+    <h3>📆 本月签到日历</h3>
+    <button onclick="closeCalendar()" style="background: none; border: none; color: white; font-size: 24px">
+      &times;
+    </button>
+  </div>
+  <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px"></div>
+  <p style="color: #95a5a6">点击已过日期进行签到</p>
+</div>
+
 <script>
-    let isPlaying = false;
-    let currentWords = [];
-    let currentPrompt = '';
-    let gameTimer;
-    let timeLeft = 180;
- 
-    function toggleGame() {
-        const btn = document.getElementById('controlBtn');
-        if (!isPlaying) {
-            if (currentWords.length === 0) {
-                alert('请先上传单词表！');
-                return;
-            }
-            btn.textContent = '游戏中...';
-            btn.style.background = '#52c41a';
-            startTimer();
-            startRound();
-            isPlaying = true;
-        } else {
-            endGame();
-        }
+
+  // 系统初始化
+  const storageKey = 'lotterySystem_v2';
+  let state = JSON.parse(localStorage.getItem(storageKey)) || {
+    sCounter: 0,
+    totalDraws: 0,
+    freeChances: 5,
+    signHistory: [],
+    lastSignDate: null
+  };
+
+  // 新增重置函数
+  function resetData() {
+    if (confirm("确定要重置所有数据吗？这将清除所有抽奖记录和签到信息！")) {
+      localStorage.removeItem(storageKey);
+      location.reload(); // 刷新页面重置状态
     }
- 
-    function loadWords(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            currentWords = e.target.result.split('\n')
-                .filter(line => line.trim())
-                .map(line => {
-                    const [english, chinese] = line.split(',');
-                    return { 
-                        english: english.trim(), 
-                        chinese: chinese.trim(),
-                        used: false
-                    };
-                });
-            setupGame();
-        };
-        reader.readAsText(file);
+  }
+
+  // 改进的关闭日历函数
+  function closeCalendar() {
+    document.getElementById('calendar-modal').style.display = 'none';
+  }
+
+  // 在showCalendar函数中添加背景点击关闭
+  function showCalendar() {
+    const modal = document.getElementById('calendar-modal');
+    modal.style.display = 'block';
+
+    // 添加背景遮罩
+    const overlay = document.createElement('div');
+    overlay.style = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        `;
+    overlay.onclick = closeCalendar;
+    modal.parentNode.insertBefore(overlay, modal);
+
+    generateCalendar();
+  }
+
+  // 修改关闭函数以移除遮罩
+  function closeCalendar() {
+    document.getElementById('calendar-modal').style.display = 'none';
+    document.querySelector('#calendar-modal + div')?.remove();
+  }
+
+
+  // 概率配置
+  const config = {
+    baseProb: {S: 0.005, A: 0.05, B: 0.15},
+    pity: {soft: 100, hard: 200, boost: 0.0005}
+  };
+
+  // 抽奖核心逻辑
+  function drawLottery() {
+    if (state.freeChances <= 0) return alert("抽奖次数不足！");
+
+    state.freeChances--;
+    state.totalDraws++;
+    state.sCounter++;
+
+    // 计算动态概率
+    let actualSProb = Math.min(
+      config.baseProb.S +
+      Math.max(0, state.sCounter - config.pity.soft) * config.pity.boost,
+      0.95
+    );
+
+    // 中奖判定
+    const rand = Math.random();
+    let prize = 'C';
+
+    if (state.sCounter >= config.pity.hard || rand < actualSProb) {
+      prize = 'S';
+      state.sCounter = 0;
+    } else if (rand < actualSProb + config.baseProb.A) {
+      prize = 'A';
+    } else if (rand < actualSProb + config.baseProb.A + config.baseProb.B) {
+      prize = 'B';
     }
- 
-    function setupGame() {
-        document.querySelectorAll('.word-btn').forEach(btn => btn.remove());
-         
-        const createTeamWords = (container) => {
-            const shuffled = [...currentWords].sort(() => Math.random() - 0.5);
-            shuffled.forEach(word => {
-                const btn = document.createElement('button');
-                btn.className = 'word-btn';
-                btn.textContent = word.english;
-                btn.onclick = () => handleWordClick(word.english, word.chinese, btn);
-                container.insertBefore(btn, container.querySelector('.score'));
-            });
-        };
- 
-        createTeamWords(document.getElementById('team1'));
-        createTeamWords(document.getElementById('team2'));
+
+    showResult(prize);
+    updateDisplay();
+    saveState();
+  }
+
+  // 显示抽奖结果
+  function showResult(prize) {
+    const modal = document.getElementById('result-modal');
+    const prizeData = {
+      S: {text: "S级神秘大奖", color: "gold", img: "img/S.png"},
+      A: {text: "A级稀有奖励", color: "silver", img: "img/A.png"},
+      B: {text: "B级超值礼包", color: "#cd7f32", img: "img/B.png"},
+      C: {text: "C级安慰奖励", color: "gray", img: "img/C.png"}
+    };
+
+    modal.style.display = "block";
+    modal.style.borderColor = prizeData[prize].color;
+    document.getElementById('result-text').textContent = prizeData[prize].text;
+    document.getElementById('result-image').style.backgroundImage =
+      `url(${prizeData[prize].img})`;
+
+  }
+
+  // 生成日历
+  function generateCalendar() {
+    const today = new Date();
+    const daysInMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      0
+    ).getDate();
+
+    let calendarHTML = '';
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const isPast = d <= today.getDate();
+      const isSigned = state.signHistory.includes(dateStr);
+
+      calendarHTML += `
+                    <div class="calendar-day
+                        ${isSigned ? 'signed' : ''}
+                        ${isPast ? 'clickable' : ''}"
+                        style="background: ${isPast ? '#34495e' : '#2c3e50'}"
+                        ${isPast && !isSigned ? `onclick="signDate(${d})"` : ''}>
+                        ${d}
+                        ${d === today.getDate() ? '✨' : ''}
+                    </div>
+                `;
     }
- 
-    function handleWordClick(english, chinese, btn) {
-        if (!isPlaying) return;
-         
-        if (chinese === currentPrompt) {
-            btn.classList.add('correct');
-            const container = btn.closest('.team-area');
-            const scoreElement = container.querySelector('.score');
-            scoreElement.textContent = `得分: ${parseInt(scoreElement.textContent.match(/\d+/)) + 10}`;
-             
-            setTimeout(() => {
-                btn.remove();
-                startRound();
-            }, 500);
-        } else {
-            btn.classList.add('wrong');
-            setTimeout(() => btn.classList.remove('wrong'), 500);
-        }
+    document.getElementById('calendar-grid').innerHTML = calendarHTML;
+  }
+
+  // 签到功能
+  function signDate(day) {
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+    if (!state.signHistory.includes(dateStr)) {
+      state.signHistory.push(dateStr);
+      state.freeChances++;
+      saveState();
+      updateDisplay();
+      generateCalendar();
     }
- 
-    function startRound() {
-        const availableWords = currentWords.filter(word => !word.used);
-        if (availableWords.length === 0) {
-            document.querySelectorAll('.current-prompt').forEach(span => {
-                span.textContent = "所有单词已完成！";
-            });
-            return;
-        }
- 
-        const randomIndex = Math.floor(Math.random() * availableWords.length);
-        currentPrompt = availableWords[randomIndex].chinese;
-        currentWords = currentWords.map(word => 
-            word.chinese === currentPrompt ? {...word, used: true} : word
-        );
- 
-        document.querySelectorAll('.current-prompt').forEach(span => {
-            span.textContent = currentPrompt;
-        });
-    }
- 
-    function startTimer() {
-        clearInterval(gameTimer);
-        gameTimer = setInterval(() => {
-            timeLeft--;
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            document.getElementById('timer').textContent = 
-                `剩余时间：${minutes}:${seconds.toString().padStart(2, '0')}`;
-             
-            if (timeLeft <= 0) endGame();
-        }, 1000);
-    }
- 
-    function endGame() {
-        clearInterval(gameTimer);
-        const btn = document.getElementById('controlBtn');
-        btn.textContent = '游戏开始';
-        btn.style.background = '#ff4d4f';
-        isPlaying = false;
-         
-        // 显示当前得分后清零
-        const score1 = document.querySelector('#team1 .score').textContent;
-        const score2 = document.querySelector('#team2 .score').textContent;
-        alert(`游戏结束！\n第一组得分：${score1}\n第二组得分：${score2}`);
-         
-        // 重置所有状态
-        document.querySelectorAll('.score').forEach(span => span.textContent = '得分: 0');
-        timeLeft = 180;
-        document.getElementById('timer').textContent = '剩余时间：3:00';
-        currentWords = currentWords.map(word => ({...word, used: false}));
-        setupGame();
-    }
+  }
+
+  // 辅助功能
+  function showCalendar() {
+    document.getElementById('calendar-modal').style.display = 'block';
+    generateCalendar();
+  }
+
+  function closeResult() {
+    document.getElementById('result-modal').style.display = 'none';
+  }
+
+  function updateDisplay() {
+    document.getElementById('chances').textContent = state.freeChances;
+    document.getElementById('counter').textContent = state.sCounter;
+    document.getElementById('total-counter').textContent = state.totalDraws;
+
+    // 更新S级概率显示
+    const actualProb = Math.min(
+      config.baseProb.S +
+      Math.max(0, state.sCounter - config.pity.soft) * config.pity.boost,
+      0.95
+    );
+    document.getElementById('s-prob').textContent =
+      `${(actualProb * 100).toFixed(2)}%`;
+  }
+
+  function saveState() {
+    localStorage.setItem(storageKey, JSON.stringify(state));
+  }
+
+  // 初始化显示
+  updateDisplay();
 </script>
 </body>
 </html>
