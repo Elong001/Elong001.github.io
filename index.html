@@ -4,6 +4,132 @@
   <meta charset="UTF-8">
   <title>豪华抽奖系统-完整版</title>
   <style>
+    /* 积分进度条样式 */
+    .points-container {
+      width: 300px;
+      margin: 20px auto;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    #points-progress {
+      height: 20px;
+      background: #555;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #points-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff9f43, #ffd700);
+      transition: width 0.3s ease;
+    }
+
+    #points-text {
+      position: absolute;
+      width: 100%;
+      text-align: center;
+      color: white;
+      text-shadow: 1px 1px 2px black;
+    }
+
+    /* 段位系统样式 */
+    .rank-container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 15px;
+      margin: 20px auto;
+      width: 300px;
+      text-align: center;
+    }
+
+    #rank-name {
+      font-size: 24px;
+      color: #ffd700;
+      margin: 10px 0;
+    }
+
+    .stars {
+      font-size: 24px;
+      color: #ffd700;
+      margin: 10px 0;
+    }
+
+    .star-counter {
+      color: #95a5a6;
+      font-size: 14px;
+    }
+
+    /* 添加轮盘样式 */
+    .wheel-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 20px auto;
+    }
+
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+      transition: transform 2s ease-out;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .slice {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      right: 0;
+      transform-origin: 0% 100%;
+      background: linear-gradient(45deg,
+      rgba(255, 215, 0, 0.3),
+      rgba(255, 165, 0, 0.3));
+      clip-path: polygon(0 0, 100% 0, 100% 100%);
+    }
+
+    .slice:nth-child(odd) {
+      background: linear-gradient(45deg,
+      rgba(255, 99, 71, 0.3),
+      rgba(255, 69, 0, 0.3));
+    }
+
+    .slice span {
+      position: absolute;
+      right: 20px;
+      top: 15px;
+      color: white;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px black;
+    }
+
+    .pointer {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      width: 4px;
+      height: 40px;
+      background: #ff4444;
+      transform: translateX(-50%);
+      z-index: 1;
+    }
+
+    .pointer::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: -5px;
+      border-width: 10px;
+      border-style: solid;
+      border-color: #ff4444 transparent transparent;
+    }
+
+
     /* 添加新按钮颜色 */
     button[onclick="completeTask()"] {
       background: #2ecc71 !important;
@@ -317,7 +443,9 @@
   <button onclick="drawLottery()">🎰 立即抽奖 (剩余: <span id="chances">5</span>)</button>
   <button onclick="showCalendar()" style="background: #3498db">📅 每日签到</button>
   <!-- 新增按钮 -->
-  <button onclick="completeTask()" style="background: #2ecc71">✅ 完成任务</button>
+  <button onclick="completeTask()">✅ 完成任务 (+30分/+1⭐)</button>
+  <!-- 新增任务失败按钮 -->
+  <button onclick="failTask()" style="background: #f1c40f">❌ 任务失败 (+15分/-1⭐)</button>
   <button onclick="completeChallenge()" style="background: #9b59b6">🎯 完成挑战</button>
   <button onclick="resetData()" style="background: #e74c3c">🔄 重置数据</button>
 
@@ -347,14 +475,90 @@
   <p style="color: #95a5a6">点击已过日期进行签到</p>
 </div>
 
+<!-- +++ 插入积分系统 +++ -->
+<div class="points-container">
+  <div>当前积分：<span id="points">0</span>/240</div>
+  <div id="points-progress">
+    <div id="points-bar"></div>
+    <div id="points-text">0%</div>
+  </div>
+</div>
+
+<!-- +++ 插入段位系统 +++ -->
+<div class="rank-container">
+  <div>当前段位</div>
+  <div id="rank-name">青铜Ⅲ</div>
+  <div class="stars" id="stars-display"></div>
+  <div class="star-counter">累计星星：<span id="total-stars">0</span></div>
+</div>
+
+<!-- 在抽奖界面下方添加以下代码 -->
+<h2 style="text-align: center; margin: 40px 0 20px">🎡 幸运大轮盘</h2>
+<div style="text-align: center">
+  <div class="wheel-container">
+    <div id="wheel" class="wheel">
+      <!-- 10个扇形区域 -->
+      <div class="slice" style="transform: rotate(0deg)"><span>1</span></div>
+      <div class="slice" style="transform: rotate(36deg)"><span>2</span></div>
+      <div class="slice" style="transform: rotate(72deg)"><span>3</span></div>
+      <div class="slice" style="transform: rotate(108deg)"><span>4</span></div>
+      <div class="slice" style="transform: rotate(144deg)"><span>5</span></div>
+      <div class="slice" style="transform: rotate(180deg)"><span>6</span></div>
+      <div class="slice" style="transform: rotate(216deg)"><span>7</span></div>
+      <div class="slice" style="transform: rotate(252deg)"><span>8</span></div>
+      <div class="slice" style="transform: rotate(288deg)"><span>9</span></div>
+      <div class="slice" style="transform: rotate(324deg)"><span>10</span></div>
+    </div>
+    <div class="pointer"></div>
+  </div>
+  <button onclick="spinWheel()" style="margin: 20px 0">🎡 开始旋转</button>
+  <div id="wheel-result" style="font-size: 24px"></div>
+</div>
+
 <script>
+
+  // 轮盘状态变量
+  let isSpinning = false;
+  let currentRotation = 0;
+
+  function spinWheel() {
+    if (isSpinning) return;
+    isSpinning = true;
+
+    // 生成随机结果
+    const result = Math.floor(Math.random() * 10) + 1;
+    const targetDegrees = (result - 1) * 36;
+
+    // 计算总旋转角度（至少50圈）
+    const fullRotations = 50 * 360;
+    const totalRotation = currentRotation + fullRotations + targetDegrees;
+
+    // 应用旋转动画
+    const wheel = document.getElementById('wheel');
+    wheel.style.transform = `rotate(${totalRotation}deg)`;
+
+    // 保存最终位置
+    currentRotation = totalRotation % 360;
+
+    // 动画结束处理
+    wheel.addEventListener('transitionend', () => {
+      isSpinning = false;
+      document.getElementById('wheel-result').innerHTML =
+        `🎉 恭喜获得幸运数字：${result}！`;
+    }, {once: true});
+  }
 
   // 系统初始化
   const storageKey = 'lotterySystem_v2';
   let state = JSON.parse(localStorage.getItem(storageKey)) || {
     sCounter: 0,
     totalDraws: 0,
-    freeChances: 5,
+    freeChances: 0,
+    // +++ 新增状态 +++
+    points: 0,       // 积分
+    stars: 0,        // 当前段位星星数
+    totalStars: 0,    // 累计总星星数
+
     signHistory: [],
     lastSignDate: null,
     goldCoins: 0,
@@ -426,13 +630,118 @@
     }
   };
 
+  // +++ 新增段位配置 +++
+  const rankConfig = [
+    // 普通段位（type: normal）
+    {name: '青铜Ⅲ', min: 0, max: 3, starsPer: 3},
+    {name: '青铜Ⅱ', min: 4, max: 6, starsPer: 3},
+    {name: '青铜Ⅰ', min: 7, max: 9, starsPer: 3},
+    {name: '白银Ⅲ', min: 10, max: 12, starsPer: 3},
+    {name: '白银Ⅱ', min: 13, max: 15, starsPer: 3},
+    {name: '白银Ⅰ', min: 16, max: 18, starsPer: 3},
+    {name: '黄金Ⅳ', min: 19, max: 22, starsPer: 4},
+    {name: '黄金Ⅲ', min: 23, max: 26, starsPer: 4},
+    {name: '黄金Ⅱ', min: 27, max: 30, starsPer: 4},
+    {name: '黄金Ⅰ', min: 31, max: 34, starsPer: 4},
+    {name: '铂金Ⅳ', min: 35, max: 38, starsPer: 4},
+    {name: '铂金Ⅲ', min: 39, max: 42, starsPer: 4},
+    {name: '铂金Ⅱ', min: 43, max: 46, starsPer: 4},
+    {name: '铂金Ⅰ', min: 47, max: 50, starsPer: 4},
+    {name: '钻石Ⅴ', min: 51, max: 55, starsPer: 5},
+    {name: '钻石Ⅳ', min: 56, max: 60, starsPer: 5},
+    {name: '钻石Ⅲ', min: 61, max: 65, starsPer: 5},
+    {name: '钻石Ⅱ', min: 66, max: 70, starsPer: 5},
+    {name: '钻石Ⅰ', min: 71, max: 75, starsPer: 5},
+    {name: '星耀Ⅴ', min: 76, max: 80, starsPer: 5},
+    {name: '星耀Ⅳ', min: 81, max: 85, starsPer: 5},
+    {name: '星耀Ⅲ', min: 86, max: 90, starsPer: 5},
+    {name: '星耀Ⅱ', min: 91, max: 95, starsPer: 5},
+    {name: '星耀Ⅰ', min: 96, max: 100, starsPer: 5},
+
+    // 特殊段位（type: special）
+    {name: '最强王者', min: 101, max: 109, type: 'special'},
+    {name: '非凡王者', min: 110, max: 124, type: 'special'},
+    {name: '无双王著', min: 125, max: 134, type: 'special'},
+    {name: '绝世王者', min: 135, max: 149, type: 'special'},
+    {name: '至圣王者', min: 150, max: 174, type: 'special'},
+    {name: '荣耀王者', min: 175, max: 199, type: 'special'},
+    {name: '传奇王者', min: 200, max: 9999, type: 'special'}
+  ];
+
+  // +++ 新增积分处理函数 +++
+  function handlePoints(amount) {
+    state.points = Math.max(0, state.points + amount);
+    updatePointsDisplay();
+
+    while (state.points >= 240) {
+      state.points -= 70;
+      state.stars += 2;
+      state.totalStars += 2;
+      updateRankDisplay();
+    }
+  }
+
+  function updatePointsDisplay() {
+    document.getElementById('points').textContent = state.points;
+    const percent = (state.points / 240 * 100).toFixed(1);
+    document.getElementById('points-bar').style.width = percent + '%';
+    document.getElementById('points-text').textContent = percent + '%';
+  }
+
+  // +++ 段位显示处理函数 +++
+  function updateRankDisplay() {
+    const totalStars = state.stars;
+    let currentRank = rankConfig[0];
+
+    for (const rank of rankConfig) {
+      if (totalStars >= rank.min && totalStars <= rank.max) {
+        currentRank = rank;
+        break;
+      }
+    }
+
+    let starsDisplay = '';
+    if (currentRank.type === 'special') {
+      starsDisplay = `${totalStars}x⭐`;
+    } else {
+      const currentStars = totalStars - currentRank.min + 1;
+      starsDisplay = currentStars === 0 ? '0x⭐' : '⭐'.repeat(currentStars);
+    }
+
+    document.getElementById('rank-name').textContent = currentRank.name;
+    document.getElementById('stars-display').innerHTML = starsDisplay;
+    document.getElementById('total-stars').textContent = state.totalStars;
+  }
+
   // 任务完成函数
   function completeTask() {
+    // 原有功能
     state.freeChances += 1;
     state.goldCoins += 20;
+
+    // 新增功能
+    handlePoints(30);
+    state.stars++;
+    state.totalStars++;
+
     updateDisplay();
+    updateRankDisplay();
     saveState();
-    alert("完成任务！获得20金币和1次抽奖机会");
+  }
+
+  // 新增任务失败函数
+  function failTask() {
+    handlePoints(15);
+
+    if (state.points >= 80 && confirm('是否使用80积分抵扣扣星惩罚？')) {
+      handlePoints(-80);
+    } else {
+      state.stars = Math.max(0, state.stars - 1);
+      state.totalStars = Math.max(0, state.totalStars - 1);
+      updateRankDisplay();
+    }
+
+    saveState();
   }
 
   // 挑战完成函数
@@ -549,7 +858,7 @@
       const reader = new FileReader();
       reader.onload = () => {
         const today = new Date();
-        const dateStr = `${today.getFullYear()}-${(today.getMonth()+1).toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}`;
+        const dateStr = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 
         if (!state.signHistory.includes(dateStr)) {
           // 更新状态
@@ -604,6 +913,10 @@
 
   // 初始化显示
   updateDisplay();
+
+  // +++ 新增初始化调用 +++
+  updatePointsDisplay();  // 初始化积分显示
+  updateRankDisplay();    // 初始化段位显示
 </script>
 </body>
 </html>
