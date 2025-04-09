@@ -63,36 +63,6 @@
       font-size: 14px;
     }
 
-    /* 添加轮盘样式 */
-    .wheel-container {
-      position: relative;
-      width: 300px;
-      height: 300px;
-      margin: 20px auto;
-    }
-
-    .wheel {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      position: relative;
-      overflow: hidden;
-      transition: transform 2s ease-out;
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-    }
-
-    .slice {
-      position: absolute;
-      width: 50%;
-      height: 50%;
-      right: 0;
-      transform-origin: 0% 100%;
-      background: linear-gradient(45deg,
-      rgba(255, 215, 0, 0.3),
-      rgba(255, 165, 0, 0.3));
-      clip-path: polygon(0 0, 100% 0, 100% 100%);
-    }
-
     .slice:nth-child(odd) {
       background: linear-gradient(45deg,
       rgba(255, 99, 71, 0.3),
@@ -446,7 +416,6 @@
   <button onclick="completeTask()">✅ 完成任务 (+30分/+1⭐)</button>
   <!-- 新增任务失败按钮 -->
   <button onclick="failTask()" style="background: #f1c40f">❌ 任务失败 (+15分/-1⭐)</button>
-  <button onclick="completeChallenge()" style="background: #9b59b6">🎯 完成挑战</button>
   <button onclick="resetData()" style="background: #e74c3c">🔄 重置数据</button>
 
   <div style="margin-top: 20px">
@@ -492,61 +461,7 @@
   <div class="star-counter">累计星星：<span id="total-stars">0</span></div>
 </div>
 
-<!-- 在抽奖界面下方添加以下代码 -->
-<h2 style="text-align: center; margin: 40px 0 20px">🎡 幸运大轮盘</h2>
-<div style="text-align: center">
-  <div class="wheel-container">
-    <div id="wheel" class="wheel">
-      <!-- 10个扇形区域 -->
-      <div class="slice" style="transform: rotate(0deg)"><span>1</span></div>
-      <div class="slice" style="transform: rotate(36deg)"><span>2</span></div>
-      <div class="slice" style="transform: rotate(72deg)"><span>3</span></div>
-      <div class="slice" style="transform: rotate(108deg)"><span>4</span></div>
-      <div class="slice" style="transform: rotate(144deg)"><span>5</span></div>
-      <div class="slice" style="transform: rotate(180deg)"><span>6</span></div>
-      <div class="slice" style="transform: rotate(216deg)"><span>7</span></div>
-      <div class="slice" style="transform: rotate(252deg)"><span>8</span></div>
-      <div class="slice" style="transform: rotate(288deg)"><span>9</span></div>
-      <div class="slice" style="transform: rotate(324deg)"><span>10</span></div>
-    </div>
-    <div class="pointer"></div>
-  </div>
-  <button onclick="spinWheel()" style="margin: 20px 0">🎡 开始旋转</button>
-  <div id="wheel-result" style="font-size: 24px"></div>
-</div>
-
 <script>
-
-  // 轮盘状态变量
-  let isSpinning = false;
-  let currentRotation = 0;
-
-  function spinWheel() {
-    if (isSpinning) return;
-    isSpinning = true;
-
-    // 生成随机结果
-    const result = Math.floor(Math.random() * 10) + 1;
-    const targetDegrees = (result - 1) * 36;
-
-    // 计算总旋转角度（至少50圈）
-    const fullRotations = 50 * 360;
-    const totalRotation = currentRotation + fullRotations + targetDegrees;
-
-    // 应用旋转动画
-    const wheel = document.getElementById('wheel');
-    wheel.style.transform = `rotate(${totalRotation}deg)`;
-
-    // 保存最终位置
-    currentRotation = totalRotation % 360;
-
-    // 动画结束处理
-    wheel.addEventListener('transitionend', () => {
-      isSpinning = false;
-      document.getElementById('wheel-result').innerHTML =
-        `🎉 恭喜获得幸运数字：${result}！`;
-    }, {once: true});
-  }
 
   // 系统初始化
   const storageKey = 'lotterySystem_v2';
@@ -742,15 +657,6 @@
     }
 
     saveState();
-  }
-
-  // 挑战完成函数
-  function completeChallenge() {
-    state.freeChances += 2;
-    state.goldCoins += 40;
-    updateDisplay();
-    saveState();
-    alert("完成挑战！获得40金币和2次抽奖机会");
   }
 
   // 抽奖核心逻辑
