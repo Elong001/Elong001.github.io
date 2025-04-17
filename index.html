@@ -6,41 +6,56 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<!-- 主界面：数据看板及各种入口按钮 -->
-<div id="dashboard">
-  <h1>击杀任务小游戏</h1>
-  <!-- 数据汇总看板 -->
-  <div id="data-summary">
-    <p>当前任务数量：<span id="taskCount"></span></p>
-    <p>金币：<span id="coins"></span>🪙</p>
-    <p>抽奖机会：<span id="lotteryChances"></span>🎫</p>
-    <p>积分：<span id="score"></span> / 240🪪</p>
-    <!-- 积分可视化 -->
-    <div id="scoreProgressBarContainer">
-      <div id="scoreProgressBar"></div>
+
+<!-- 新增：左上角时钟显示 -->
+<div id="clock" class="clock"></div>
+
+<div class="container glass-card">
+
+  <!-- 主界面：数据看板及各种入口按钮 -->
+  <div>
+
+    <!-- 游戏标题 -->
+    <h1 class="orbitron">击杀任务小游戏</h1>
+
+    <!-- 新增：任务栏展板（复制tasks.html中的任务列表展示） -->
+    <div id="taskPanel" class="panel" style="margin:16px 0;">
+      <h2>任务栏展板</h2>
+      <div id="dashboardTaskList"></div>
     </div>
-    <p>段位：<span id="starRating"></span></p>
-    <p>现金：<span id="cash"></span>💵</p>
-    <p>体力值：<span id="energy"></span>/5💗</p>
-    <p>连续签到天数：<span id="consecutiveSignIn"></span>🗓️</p>
-    <p>保底抽奖进度：<span id="lotteryGuarantee"></span>/20🎁</p>
-    <p>累计抽奖次数：<span id="lotteryCount"></span></p>
+
+    <!-- 数据汇总看板 -->
+    <div id="data-summary" class="panel" style="margin:16px 0;">
+      <p>当前任务数量：<span id="taskCount"></span></p>
+      <p>金币：<span id="coins"></span>🪙</p>
+      <p>抽奖机会：<span id="lotteryChances"></span>🎫</p>
+      <p>积分：<span id="score"></span> / 240🪪</p>
+      <!-- 积分可视化 -->
+      <div id="scoreProgressBarContainer">
+        <div id="scoreProgressBar"></div>
+      </div>
+      <p>段位：<span id="starRating"></span></p>
+      <p>现金：<span id="cash"></span>💵</p>
+      <p>体力值：<span id="energy"></span>/5💗</p>
+      <p>连续签到天数：<span id="consecutiveSignIn"></span>🗓️</p>
+      <p>保底抽奖进度：<span id="lotteryGuarantee"></span>/20🎁</p>
+      <p>累计抽奖次数：<span id="lotteryCount"></span></p>
+    </div>
+
   </div>
-  <!-- 新增：任务栏展板（复制tasks.html中的任务列表展示） -->
-  <div id="taskPanel">
-    <h2>任务栏展板</h2>
-    <div id="dashboardTaskList"></div>
-  </div>
+
   <!-- 主界面操作按钮 -->
-  <div id="buttons">
-    <button onclick="window.location.href='tasks.html'">管理任务</button>
-    <button onclick="window.location.href='shop.html'">金币商城</button>
-    <button onclick="window.location.href='draw.html'">立即抽奖</button>
-    <button onclick="window.location.href='signIn.html'">每日签到</button>
-    <button id="resetDataBtn">重置数据</button>
-    <button id="startGameBtn">开始游戏</button>
+  <div id="buttons" style="margin:16px 0;">
+    <button class="btn btn-index" onclick="location='tasks.html'">📑管理任务</button>
+    <button class="btn btn-shop" onclick="location='shop.html'">🪙金币商城</button>
+    <button class="btn btn-draw" onclick="location='draw.html'">🎁立即抽奖</button>
+    <button class="btn btn-signin" onclick="location='signIn.html'">🗓️每日签到</button>
+    <button id="resetDataBtn" class="btn btn-index">🔁重置数据</button>
+    <button id="startGameBtn" class="btn btn-index">开始游戏</button>
   </div>
+
 </div>
+
 <script src="script.js"></script>
 </body>
 </html>
