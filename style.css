@@ -16,12 +16,23 @@
 2. 页面设计版本2
 全局背景渐变 + 粒子（可选）
 */
-body {
-  margin: 0;
-  font-family: 'Roboto', sans-serif;
+/*body {*/
+/*  margin: 0;*/
+/*  font-family: 'Roboto', sans-serif;*/
+/*  background: linear-gradient(135deg, #0a0f24, #1a1f3e, #2a2970);*/
+/*  color: #e0e0e0;*/
+/*  overflow-x: hidden;*/
+/*}*/
+
+/* 全局字体放大，移动端友好 */
+html, body {
+  font-size: 20px;
+  font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #0a0f24, #1a1f3e, #2a2970);
   color: #e0e0e0;
   overflow-x: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 /* 顶部浮现的toast提示 */
@@ -30,29 +41,48 @@ body {
   top: 30px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(30,30,30,0.95);
+  background: rgba(30, 30, 30, 0.95);
   color: #fff;
   padding: 12px 32px;
   border-radius: 8px;
   font-size: 1.1em;
   z-index: 9999;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
   animation: toastIn 0.3s;
 }
+
 @keyframes toastIn {
-  from { opacity: 0; top: 0;}
-  to   { opacity: 1; top: 30px;}
+  from {
+    opacity: 0;
+    top: 0;
+  }
+  to {
+    opacity: 1;
+    top: 30px;
+  }
 }
+
 #scoreProgressBar {
   transition: width 0.5s;
 }
 
 
+/*!* 玻璃质感面板：舒适版 Glassmorphism 面板 *!*/
+/*.glass-card {*/
+/*  background: rgba(255, 255, 255, 0.15); !* 15% 透明度 *!*/
+/*  backdrop-filter: blur(8px); !* 适度模糊 *!*/
+/*  border: 1px solid rgba(255, 255, 255, 0.2);*/
+/*  border-radius: 12px;*/
+/*  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);*/
+/*  padding: 24px;*/
+/*  margin: 24px auto;*/
+/*  max-width: 900px;*/
+/*}*/
 
-/* 玻璃质感面板：舒适版 Glassmorphism 面板 */
+/* (全局字体放大，移动端友好)玻璃质感面板：舒适版 Glassmorphism 面板 */
 .glass-card {
-  background: rgba(255, 255, 255, 0.15); /* 15% 透明度 */
-  backdrop-filter: blur(8px); /* 适度模糊 */
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
@@ -61,13 +91,23 @@ body {
   max-width: 900px;
 }
 
-/* 内层区块：轻度半透明底色 + 阴影 */
+
+/*!* 内层区块：轻度半透明底色 + 阴影 *!*/
+/*.panel {*/
+/*  background: rgba(255, 255, 255, 0.08); !* 8% 透明度，兼顾可读性 *!*/
+/*  border-radius: 8px;*/
+/*  padding: 16px;*/
+/*  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); !* 轻微投影增强层次 *!*/
+/*}*/
+
+/* (全局字体放大，移动端友好)内层区块：轻度半透明底色 + 阴影 */
 .panel {
-  background: rgba(255, 255, 255, 0.08); /* 8% 透明度，兼顾可读性 */
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); /* 轻微投影增强层次 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
+
 
 /* 标题字体增强可读性 */
 .orbitron {
@@ -85,21 +125,59 @@ body {
 /*}*/
 
 
+/*!**/
+/*2.页面字体版本2：科幻字体*/
+/**!*/
+/*h1, h2, .orbitron {*/
+/*  font-family: 'Orbitron', sans-serif;*/
+/*  letter-spacing: 1px;*/
+/*}*/
+
 /*
-2.页面字体版本2：科幻字体
+2.页面字体版本2：科幻字体  (全局字体放大，移动端友好)
 */
-h1, h2, .orbitron {
+h1, h2, h3, .orbitron {
   font-family: 'Orbitron', sans-serif;
   letter-spacing: 1px;
+  color: #fff;
+  font-size: 2.2em;
+}
+
+h2 {
+  font-size: 1.5em;
+}
+
+p, span, label, .panel, .taskItem, .btn, input, .toast {
+  font-size: 1.1em;
+}
+
+input, button {
+  font-size: 1.1em;
 }
 
 
-/* 通用容器样式 */
+/*!* 通用容器样式 *!*/
+/*#dashboard, #countdownContainer, #taskManager, #drawContainer, #signInContainer, #shopContainer {*/
+/*  padding: 20px;*/
+/*}*/
+/*
+通用容器样式  (全局字体放大，移动端友好)
+*/
 #dashboard, #countdownContainer, #taskManager, #drawContainer, #signInContainer, #shopContainer {
   padding: 20px;
 }
 
-/* 通用容器内边距 （给选中的按钮class="container"，进行修改）*/
+
+/*!* 通用容器内边距 （给选中的按钮class="container"，进行修改）*!*/
+/*.container {*/
+/*  padding: 20px;*/
+/*  margin: 20px auto;*/
+/*  max-width: 900px;*/
+/*}*/
+/*
+通用容器内边距 （给选中的按钮class="container"，进行修改）
+(全局字体放大，移动端友好)
+*/
 .container {
   padding: 20px;
   margin: 20px auto;
@@ -107,7 +185,15 @@ h1, h2, .orbitron {
 }
 
 
-/* 数据看板 */
+/*!* 数据看板 *!*/
+/*#data-summary p {*/
+/*  font-size: 1.2em;*/
+/*  margin: 10px 0;*/
+/*}*/
+/*
+数据看板
+(全局字体放大，移动端友好)
+*/
 #data-summary p {
   font-size: 1.2em;
   margin: 10px 0;
@@ -119,19 +205,20 @@ h1, h2, .orbitron {
 */
 button {
   margin: 10px;
-  padding: 10px 20px;
+  padding: 16px 28px;
   background-color: #1f8ef1;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   color: #fff;
-  font-size: 1em;
+  font-size: 1.1em;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s, transform 0.2s;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 button:hover {
   background-color: #0d6efd;
+  transform: scale(1.05);
 }
 
 
@@ -139,19 +226,21 @@ button:hover {
 1.页面按钮样式版本2：给选中的按钮class="btn"，进行修改：霓虹按钮基础
 */
 .btn {
-  padding: 10px 20px;
+  padding: 16px 28px;
   border-radius: 8px;
   border: none;
   color: #fff;
   cursor: pointer;
-  margin: 4px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  margin: 6px;
+  transition: transform 0.3s, opacity 0.3s;
+  font-size: 1.1em;
 }
 
 .btn:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.05);
   opacity: 0.9;
 }
+
 
 /* 5. 六色霓虹配色 */
 /* 主界面-蓝 */
@@ -203,27 +292,30 @@ button:hover {
 
 .taskItem {
   background: rgba(255, 255, 255, 0.1);
-  padding: 10px;
-  margin: 10px auto;
-  width: 80%;
-  border-radius: 5px;
+  padding: 14px;
+  margin: 12px auto;
+  width: 90%;
+  border-radius: 7px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 1.1em;
 }
 
 .taskItem button {
   background-color: #ff4d4d;
+  font-size: 1em;
 }
 
 /* 新增任务输入框 */
 #newTask input {
-  width: 60%;
-  padding: 8px;
-  border-radius: 5px;
+  width: 70%;
+  padding: 10px;
+  border-radius: 7px;
   border: none;
   margin-right: 10px;
   box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.3);
+  font-size: 1.1em;
 }
 
 /* 抽奖页面 */
@@ -238,6 +330,7 @@ button:hover {
   padding: 20px;
   border-radius: 10px;
   width: 20%;
+  font-size: 1.1em;
 }
 
 /* 签到页面 */
@@ -251,6 +344,7 @@ button:hover {
   margin-top: 20px;
   font-size: 1.2em;
 }
+
 
 /* 胜利动画：撒花效果 */
 @keyframes confetti {
@@ -279,21 +373,41 @@ button:hover {
 
 /* 响应式设计 */
 @media (max-width: 600px) {
+  html, body {
+    font-size: 18px;
+  }
+
+  .container, .glass-card {
+    padding: 8px;
+    margin: 8px auto;
+    max-width: 99vw;
+  }
+
+  button, input, .btn {
+    width: 98%;
+    font-size: 1.1em;
+  }
+
   #prizeDisplay {
     flex-direction: column;
   }
 
   .prize {
-    width: 80%;
+    width: 90%;
     margin: 10px auto;
+  }
+
+  .taskItem {
+    width: 98%;
+    font-size: 1em;
   }
 }
 
 
 /* 积分进度可视化条样式 */
 #scoreProgressBarContainer {
-  width: 80%;
-  height: 25px;
+  width: 90%;
+  height: 30px;
   background-color: #555;
   border-radius: 10px;
   margin: 10px auto;
@@ -305,9 +419,10 @@ button:hover {
   background-color: #4caf50;
   border-radius: 10px;
   text-align: center;
-  line-height: 25px;
+  line-height: 30px;
   color: white;
   font-weight: bold;
+  transition: width 0.5s;
 }
 
 
@@ -316,11 +431,11 @@ button:hover {
   position: absolute;
   top: 10px;
   left: 10px;
-  font-size: 1.2em;
+  font-size: 1.3em;
   color: #ffffff;
   background: rgba(0, 0, 0, 0.5);
-  padding: 5px 10px;
-  border-radius: 5px;
+  padding: 7px 14px;
+  border-radius: 7px;
   z-index: 1000;
 }
 
@@ -339,14 +454,103 @@ audio#bgAudio {
 
 #musicControl button {
   margin-left: 5px;
-  padding: 5px 10px;
+  padding: 7px 14px;
   background: #1f8ef1;
   color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 1em;
 }
 
 #musicControl button:hover {
   background: #0d6efd;
 }
+
+
+/* signIn.html（签到页面）日历签到样式 */
+#calendar {
+  margin: 20px auto;
+  max-width: 400px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  font-size: 1.1em;
+}
+.calendar-table th, .calendar-table td {
+  padding: 8px;
+  border-radius: 6px;
+}
+.calendar-table th {
+  color: #4A90E2;
+  font-weight: bold;
+  background: rgba(255,255,255,0.12);
+}
+.calendar-table td {
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.calendar-table td.signed {
+  background: #7ED321;
+  color: #fff;
+  font-weight: bold;
+}
+.calendar-table td.failed {
+  background: #D0021B;
+  color: #fff;
+  font-weight: bold;
+}
+.calendar-table td.today {
+  border: 2px solid #4A90E2;
+}
+.calendar-table td.empty {
+  background: transparent;
+  cursor: default;
+}
+#calendar-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+#calendar-nav button {
+  padding: 4px 12px;
+  font-size: 1em;
+  background: #4A90E2;
+  border-radius: 6px;
+  border: none;
+  color: #fff;
+}
+#calendar-nav span {
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+/* signIn.html（签到页面）公告样式 */
+#notice {
+  background: rgba(255,255,255,0.13);
+  border-radius: 10px;
+  padding: 18px;
+  margin: 18px auto;
+  max-width: 500px;
+  color: #fff;
+  font-size: 1.1em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+#notice h3 {
+  color: #F5A623;
+  margin-top: 0;
+  font-size: 1.2em;
+}
+#notice ul {
+  margin: 0 0 0 1.2em;
+  padding: 0;
+}
+
