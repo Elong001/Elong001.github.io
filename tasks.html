@@ -7,12 +7,13 @@
 </head>
 <body>
 <!-- 任务管理页面：包含返回主界面按钮、任务列表、输入新增任务和删除任务功能 -->
-<div id="taskManager">
-  <button onclick="window.location.href='index.html'">返回主界面</button>
+<div class="container glass-card">
+  <button class="btn btn-tasks" onclick="location='index.html'">返回主界面</button>
   <div id="taskList"></div>
-  <div id="newTask">
-    <input type="text" id="taskInput" placeholder="输入任务（50字以内）">
-    <button id="addTaskBtn">确定上传</button>
+  <div id="newTask" style="margin-top:20px;">
+    <input type="text" id="taskInput" placeholder="输入任务（50字以内）" class="glass-card"
+           style="width:70%; padding:8px;">
+    <button id="addTaskBtn" class="btn btn-tasks">添加任务</button>
   </div>
 </div>
 <script src="script.js"></script>
