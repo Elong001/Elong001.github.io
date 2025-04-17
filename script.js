@@ -433,6 +433,8 @@ function signIn() {
   let data = GameData.get();
   let now = new Date();
   let currentHours = now.getHours();
+  let todayStr = now.toISOString().slice(0, 10);
+  if (!data.signInHistory) data.signInHistory = {};
   if (currentHours >= 6 && currentHours < 12) {
     let lastSignIn = data.lastSignInDate ? new Date(data.lastSignInDate) : null;
     if (lastSignIn && lastSignIn.toDateString() === now.toDateString()) {
@@ -448,6 +450,7 @@ function signIn() {
     } else {
       data.consecutiveSignIn = 1;
     }
+    // 连续签到奖励
     if (data.consecutiveSignIn === 3) {
       data.coins += 30;
     } else if (data.consecutiveSignIn === 5) {
@@ -466,12 +469,72 @@ function signIn() {
       data.lotteryChances += 7;
     }
     data.lastSignInDate = now;
+    data.signInHistory[todayStr] = "signed";
     GameData.set(data);
     document.getElementById("signInMessage").textContent = "签到成功！奖励已发放。";
+    renderCalendar(); // 刷新日历
   } else {
-    document.getElementById("signInMessage").textContent = "请在规定时间内（06:00 - 10:00）完成签到";
+    document.getElementById("signInMessage").textContent = "请在规定时间内（06:00 - 12:00）完成签到";
+    data.signInHistory[todayStr] = "failed";
+    GameData.set(data);
+    renderCalendar();
   }
 }
+
+// ---------------------------
+// 日历签到渲染
+// ---------------------------
+let calendarMonthOffset = 0; // 0为本月，-1为上月，1为下月
+
+function renderCalendar() {
+  let data = GameData.get();
+  if (!data.signInHistory) data.signInHistory = {};
+  const calendarDiv = document.getElementById("calendar");
+  if (!calendarDiv) return;
+
+  // 计算当前显示的年月
+  let now = new Date();
+  let year = now.getFullYear();
+  let month = now.getMonth() + calendarMonthOffset;
+  while (month < 0) { year--; month += 12; }
+  while (month > 11) { year++; month -= 12; }
+  let firstDay = new Date(year, month, 1);
+  let lastDay = new Date(year, month + 1, 0);
+  let todayStr = (new Date()).toISOString().slice(0, 10);
+
+  // 日历头部
+  let html = `<div id="calendar-nav">
+    <button onclick="calendarMonthOffset--;renderCalendar();">&lt;</button>
+    <span>${year}年${month + 1}月</span>
+    <button onclick="calendarMonthOffset++;renderCalendar();">&gt;</button>
+  </div>`;
+  html += `<table class="calendar-table"><thead><tr>
+    <th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th>
+  </tr></thead><tbody><tr>`;
+
+  // 空白填充
+  for (let i = 0; i < firstDay.getDay(); i++) html += `<td class="empty"></td>`;
+
+  // 填充日期
+  for (let d = 1; d <= lastDay.getDate(); d++) {
+    let dateObj = new Date(year, month, d);
+    let dateStr = dateObj.toISOString().slice(0, 10);
+    let cls = "";
+    if (data.signInHistory[dateStr] === "signed") cls = "signed";
+    else if (data.signInHistory[dateStr] === "failed") cls = "failed";
+    if (dateStr === todayStr) cls += " today";
+    html += `<td class="${cls.trim()}">${d}</td>`;
+    if ((dateObj.getDay() + 1) % 7 === 0 && d !== lastDay.getDate()) html += "</tr><tr>";
+  }
+  // 末尾空白
+  let lastDateObj = new Date(year, month, lastDay.getDate());
+  for (let i = lastDateObj.getDay() + 1; i < 7; i++) html += `<td class="empty"></td>`;
+  html += "</tr></tbody></table>";
+
+  calendarDiv.innerHTML = html;
+}
+
+
 
 // ---------------------------
 // 金币商城模块
@@ -557,6 +620,10 @@ function initEventListeners() {
     document.getElementById("exchangeEnergyBtn").addEventListener("click", exchangeEnergy);
   }
   setupMusicControl();
+  // 日历渲染
+  if (document.getElementById("calendar")) {
+    renderCalendar();
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
