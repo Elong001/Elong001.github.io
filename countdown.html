@@ -6,18 +6,35 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- 新增：左上角时钟显示 -->
+<div id="clock" class="clock"></div>
+
 <!-- 倒计时界面：顶部显示抽取到的任务，中部显示倒计时，底部有“任务完成”和“放弃”两个按钮 -->
-<div id="countdownContainer">
+<div class="container glass-card">
+
+  <!-- 背景音乐播放控件 -->
+  <div id="musicControl">
+    <button id="playMusicBtn">播放背景音乐</button>
+    <button id="stopMusicBtn" style="display:none;">停止音乐</button>
+  </div>
+  <!-- 背景音乐自动播放，自动循环 -->
+  <!-- 隐藏的 audio 标签 -->
+  <audio id="bgAudio" src="bg_music.mp3"></audio>
+
   <!-- 显示任务名称 -->
-  <div id="taskNameDisplay"></div>
+  <h2 class="orbitron">目标：<span id="taskNameDisplay"></span></h2>
   <!-- 30分钟倒计时显示 -->
-  <div id="timerDisplay">30:00</div>
+  <div id="timerDisplay" class="orbitron" style="font-size:3em; margin:20px 0;"></div>
   <!-- 操作按钮 -->
   <div id="countdownButtons">
-    <button id="completeTaskBtn">任务完成</button>
-    <button id="giveUpBtn">放弃</button>
+    <button id="completeTaskBtn" class="btn btn-countdown">任务完成</button>
+    <button id="giveUpBtn" class="btn btn-countdown">放弃</button>
   </div>
+
+
 </div>
+
 <script src="script.js"></script>
 </body>
 </html>
