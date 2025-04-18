@@ -554,3 +554,117 @@ audio#bgAudio {
   padding: 0;
 }
 
+/* 段位展示区域样式 */
+.rank-panel {
+  background: rgba(255, 255, 255, 0.18);
+  border: 2px solid #ffd700;
+  box-shadow: 0 0 24px 4px #ffd70044, 0 2px 8px #0008;
+  border-radius: 16px;
+  padding: 24px 16px 20px 16px;
+  margin-bottom: 24px;
+  text-align: center;
+  position: relative;
+}
+#rankVisual {
+  font-size: 2.2em;
+  font-family: 'Orbitron', sans-serif;
+  margin-bottom: 12px;
+  color: #ffd700;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 8px #000a, 0 0 8px #ffd70088;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+#starProgressBarContainer {
+  width: 80%;
+  height: 18px;
+  background: linear-gradient(90deg, #e0e7ff 0%, #f3e8ff 50%, #ffe4ec 100%);
+  border-radius: 9px;
+  margin: 0 auto 8px auto;
+  box-shadow: 0 2px 8px #e0e7ff44;
+  overflow: hidden;
+}
+#starProgressBar {
+  height: 100%;
+  background: linear-gradient(90deg, #a5b4fc 0%, #c4b5fd 50%, #f9a8d4 100%);
+  border-radius: 9px 0 0 9px;
+  transition: width 0.6s cubic-bezier(.4,2,.6,1);
+  box-shadow: 0 0 8px #c4b5fd88;
+  text-align: right;
+  color: #333;
+  font-weight: bold;
+  padding-right: 8px;
+  font-size: 1em;
+  line-height: 18px;
+}
+#starInfo {
+  margin-top: 6px;
+  color: #fffbe6;
+  font-size: 1.1em;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 4px #000a;
+}
+/* 星星动画 */
+@keyframes starShine {
+  0% { filter: brightness(1); transform: scale(1); }
+  50% { filter: brightness(2.2); transform: scale(1.18); }
+  100% { filter: brightness(1); transform: scale(1); }
+}
+.star-visual {
+  color: #ffd700;
+  font-size: 1.5em;
+  margin: 0 2px;
+  animation: starShine 1.2s infinite ease-in-out;
+  display: inline-block;
+}
+
+/* 倒计时页面专用：整体居中布局 */
+.countdown-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.countdown-center-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#countdownClock {
+  font-size: 1.3em;
+  color: #fff;
+  background: rgba(0,0,0,0.25);
+  padding: 8px 24px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+  font-family: 'Orbitron', 'Roboto', 'Segoe UI', Arial, sans-serif;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  display: inline-block;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.main-page-clock {
+  position: fixed;
+  left: 24px;
+  top: 18px;
+  background: rgba(0,0,0,0.18);
+  color: #fff;
+  font-family: 'Orbitron', 'Roboto', 'Segoe UI', Arial, sans-serif;
+  font-size: 2em;
+  padding: 10px 22px 6px 22px;
+  border-radius: 12px 0 16px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  z-index: 1001;
+  text-align: left;
+  line-height: 1.2;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
