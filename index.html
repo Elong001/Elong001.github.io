@@ -7,14 +7,25 @@
 </head>
 <body>
 
-<!-- 新增：左上角时钟显示 -->
-<div id="clock" class="clock"></div>
 
-<div class="container glass-card">
+  <!-- 吸附左上角的时钟 -->
+  <div id="mainPageClock" class="main-page-clock"></div>
+
+  <div class="container glass-card">
+
+
+  <!-- 新增：段位展示区域（单独展示，带可视化进度） -->
+  <div id="rankPanel" class="panel rank-panel" style="margin:16px 0;">
+    <h2>段位展示</h2>
+    <div id="rankVisual"></div>
+    <div id="starProgressBarContainer">
+      <div id="starProgressBar"></div>
+    </div>
+    <div id="starInfo"></div>
+  </div>
 
   <!-- 主界面：数据看板及各种入口按钮 -->
   <div>
-
     <!-- 游戏标题 -->
     <h1 class="orbitron">击杀任务小游戏</h1>
 
@@ -27,7 +38,7 @@
     <!-- 数据汇总看板 -->
     <div id="data-summary" class="panel" style="margin:16px 0;">
       <p>当前任务数量：<span id="taskCount"></span></p>
-      <p>金币：<span id="coins"></span>🪙</p>
+      <p>金币：<span id="coins"></span>💰</p>
       <p>抽奖机会：<span id="lotteryChances"></span>🎫</p>
       <p>积分：<span id="score"></span> / 240🪪</p>
       <!-- 积分可视化 -->
@@ -47,15 +58,85 @@
   <!-- 主界面操作按钮 -->
   <div id="buttons" style="margin:16px 0;">
     <button class="btn btn-index" onclick="location='tasks.html'">📑管理任务</button>
-    <button class="btn btn-shop" onclick="location='shop.html'">🪙金币商城</button>
+    <button class="btn btn-shop" onclick="location='shop.html'">💰金币商城</button>
     <button class="btn btn-draw" onclick="location='draw.html'">🎁立即抽奖</button>
     <button class="btn btn-signin" onclick="location='signIn.html'">🗓️每日签到</button>
     <button id="resetDataBtn" class="btn btn-index">🔁重置数据</button>
     <button id="startGameBtn" class="btn btn-index">开始游戏</button>
+    <button id="bgmToggleBtn" class="btn btn-index">🎶播放背景音乐</button>
   </div>
 
 </div>
 
+<div id="rankupModal" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
+  <div style="background:rgba(255,255,255,0.98);border-radius:18px;padding:36px 32px;box-shadow:0 8px 32px #ffd70088;text-align:center;min-width:260px;max-width:90vw;">
+    <div id="rankupTitle" style="font-size:2em;color:#f59e42;margin-bottom:12px;"></div>
+    <div id="rankupDesc" style="font-size:1.2em;color:#333;"></div>
+    <button onclick="document.getElementById('rankupModal').style.display='none'" style="margin-top:18px;padding:8px 32px;font-size:1.1em;background:#f59e42;color:#fff;border:none;border-radius:8px;">知道了</button>
+  </div>
+</div>
+<audio id="rankupAudio" src="music/rankup.mp3" preload="auto"></audio>
+<audio id="indexBgAudio" src="music/bg_music_1_xingjichuanyue.mp3" loop style="display:none;"></audio>
+
 <script src="script.js"></script>
+<!-- 飘雪花特效 -->
+<canvas id="snowCanvas" style="position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:0;"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('snowCanvas');
+  const ctx = canvas.getContext('2d');
+  let W = window.innerWidth;
+  let H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+  let snowflakes = [];
+  function randomBetween(a, b) { return a + Math.random() * (b - a); }
+  function createSnow() {
+    return {
+      x: randomBetween(0, W),
+      y: randomBetween(-H, 0),
+      r: randomBetween(1.5, 4.5),
+      d: randomBetween(1, 2.5),
+      alpha: randomBetween(0.5, 1),
+      drift: randomBetween(-0.5, 0.5)
+    };
+  }
+  for (let i = 0; i < 80; i++) snowflakes.push(createSnow());
+  function drawSnow() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.save();
+    ctx.globalAlpha = 0.8;
+    ctx.fillStyle = '#fff';
+    for (let i = 0; i < snowflakes.length; i++) {
+      let s = snowflakes[i];
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
+      ctx.globalAlpha = s.alpha;
+      ctx.fill();
+    }
+    ctx.restore();
+    updateSnow();
+  }
+  function updateSnow() {
+    for (let i = 0; i < snowflakes.length; i++) {
+      let s = snowflakes[i];
+      s.y += s.d;
+      s.x += s.drift;
+      if (s.y > H || s.x < 0 || s.x > W) {
+        snowflakes[i] = createSnow();
+        snowflakes[i].y = 0;
+      }
+    }
+  }
+  function resize() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W;
+    canvas.height = H;
+  }
+  window.addEventListener('resize', resize);
+  setInterval(drawSnow, 30);
+})();
+</script>
 </body>
 </html>
