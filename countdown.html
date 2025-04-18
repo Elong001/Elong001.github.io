@@ -5,29 +5,32 @@
   <title>倒计时 - 击杀任务小游戏</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body id="countdownBody" style="background: url('img/countdown/bg2.png') no-repeat center center fixed; background-size: cover; background-attachment: fixed; background-repeat: no-repeat;">
 
-<!-- 新增：左上角时钟显示 -->
-<div id="clock" class="clock"></div>
-
-<!-- 倒计时界面：顶部显示抽取到的任务，中部显示倒计时，底部有“任务完成”和“放弃”两个按钮 -->
-<div class="container glass-card">
+<!-- 倒计时界面：顶部显示抽取到的任务，中部显示倒计时，底部有"任务完成"和"放弃"两个按钮 -->
+<div class="container glass-card countdown-center">
 
   <!-- 背景音乐播放控件 -->
-  <div id="musicControl">
+  <div id="musicControl" class="countdown-center-item">
     <button id="playMusicBtn">播放背景音乐</button>
     <button id="stopMusicBtn" style="display:none;">停止音乐</button>
   </div>
   <!-- 背景音乐自动播放，自动循环 -->
   <!-- 隐藏的 audio 标签 -->
-  <audio id="bgAudio" src="bg_music.mp3"></audio>
+  <audio id="bgAudio"></audio>
+
+  <!-- 成功与失败音效 -->
+  <!-- <audio id="successAudio" src="success.mp3"></audio> -->
+  <!-- <audio id="failAudio" src="fail.mp3"></audio> -->
 
   <!-- 显示任务名称 -->
-  <h2 class="orbitron">目标：<span id="taskNameDisplay"></span></h2>
+  <h2 class="orbitron countdown-center-item">目标：<span id="taskNameDisplay"></span></h2>
+  <!-- 新增：美观简约时钟，位于任务名和倒计时之间 -->
+  <div id="countdownClock" class="countdown-center-item" style="margin: 0 0 18px 0;"></div>
   <!-- 30分钟倒计时显示 -->
-  <div id="timerDisplay" class="orbitron" style="font-size:3em; margin:20px 0;"></div>
+  <div id="timerDisplay" class="orbitron countdown-center-item" style="font-size:5em; margin:32px 0; font-weight:bold;"></div>
   <!-- 操作按钮 -->
-  <div id="countdownButtons">
+  <div id="countdownButtons" class="countdown-center-item" style="display:flex;justify-content:center;gap:32px;">
     <button id="completeTaskBtn" class="btn btn-countdown">任务完成</button>
     <button id="giveUpBtn" class="btn btn-countdown">放弃</button>
   </div>
@@ -36,5 +39,78 @@
 </div>
 
 <script src="script.js"></script>
+<!-- 飘雪花特效 -->
+<canvas id="snowCanvas" style="position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:0;"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('snowCanvas');
+  const ctx = canvas.getContext('2d');
+  let W = window.innerWidth;
+  let H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+  let snowflakes = [];
+  function randomBetween(a, b) { return a + Math.random() * (b - a); }
+  function createSnow() {
+    return {
+      x: randomBetween(0, W),
+      y: randomBetween(-H, 0),
+      r: randomBetween(1.5, 4.5),
+      d: randomBetween(1, 2.5),
+      alpha: randomBetween(0.5, 1),
+      drift: randomBetween(-0.5, 0.5)
+    };
+  }
+  for (let i = 0; i < 80; i++) snowflakes.push(createSnow());
+  function drawSnow() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.save();
+    ctx.globalAlpha = 0.8;
+    ctx.fillStyle = '#fff';
+    for (let i = 0; i < snowflakes.length; i++) {
+      let s = snowflakes[i];
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
+      ctx.globalAlpha = s.alpha;
+      ctx.fill();
+    }
+    ctx.restore();
+    updateSnow();
+  }
+  function updateSnow() {
+    for (let i = 0; i < snowflakes.length; i++) {
+      let s = snowflakes[i];
+      s.y += s.d;
+      s.x += s.drift;
+      if (s.y > H || s.x < 0 || s.x > W) {
+        snowflakes[i] = createSnow();
+        snowflakes[i].y = 0;
+      }
+    }
+  }
+  function resize() {
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W;
+    canvas.height = H;
+  }
+  window.addEventListener('resize', resize);
+  setInterval(drawSnow, 30);
+})();
+
+// 随机选择背景和音乐
+(function() {
+  var bgList = [
+    {img: 'img/countdown/bg1.png', music: 'music/bg_music_1_xingjichuanyue.mp3'},
+    {img: 'img/countdown/bg2.png', music: 'music/bg_music_2_zuozhanshi.mp3'}
+  ];
+  var pick = bgList[Math.floor(Math.random() * bgList.length)];
+  document.getElementById('countdownBody').style.background = `url('${pick.img}') no-repeat center center fixed`;
+  document.getElementById('countdownBody').style.backgroundSize = 'cover';
+  document.getElementById('countdownBody').style.backgroundAttachment = 'fixed';
+  document.getElementById('countdownBody').style.backgroundRepeat = 'no-repeat';
+  document.getElementById('bgAudio').src = pick.music;
+})();
+</script>
 </body>
 </html>
