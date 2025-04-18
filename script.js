@@ -3,11 +3,25 @@
 // ---------------------------
 // Toast消息提示模块
 // ---------------------------
+function playEffectAudio(src) {
+  const audio = document.createElement('audio');
+  audio.src = 'music/' + src;
+  audio.style.display = 'none';
+  audio.autoplay = true;
+  audio.onended = () => audio.remove();
+  document.body.appendChild(audio);
+}
+
 function showToast(msg) {
   let toast = document.createElement("div");
   toast.className = "toast";
   toast.textContent = msg;
   document.body.appendChild(toast);
+  if (msg === "任务完成，游戏胜利！") {
+    playEffectAudio("success.mp3");
+  } else if (msg === "任务失败！") {
+    playEffectAudio("fail.mp3");
+  }
   setTimeout(() => { toast.remove(); }, 1800);
 }
 
@@ -157,6 +171,7 @@ function updateDashboard() {
     document.getElementById("scoreProgressBar").style.width = percent + "%";
     document.getElementById("scoreProgressBar").textContent = Math.min(data.score, 240) + "/240";
   }
+  renderRankPanel();
 }
 
 // ---------------------------
@@ -244,10 +259,14 @@ function updateTimerDisplay(seconds) {
 
 // 任务完成
 function completeTask() {
+  playEffectAudio("success.mp3");
   clearInterval(countdownInterval);
   let parts = document.getElementById("timerDisplay").textContent.split(":");
   let totalSeconds = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
   let data = GameData.get();
+  // 升段前段位
+  let beforeStar = data.starRating;
+  let beforeRank = getRankNameByStar(beforeStar);
   if (totalSeconds >= 15 * 60 && totalSeconds <= 30 * 60) {
     data.coins += 30;
     data.lotteryChances += 2;
@@ -265,16 +284,64 @@ function completeTask() {
   }
   data.score = Math.min(data.score, 240);
   GameData.set(data);
+  // 升段后段位
+  let afterStar = data.starRating;
+  let afterRank = getRankNameByStar(afterStar);
   if (data.score >= 240) {
     data.score = data.score - 70;
     data.starRating += 1;
     GameData.set(data);
+    afterStar = data.starRating;
+    afterRank = getRankNameByStar(afterStar);
+  }
+  // 判断是否升段
+  if (afterRank !== beforeRank) {
+    localStorage.setItem('rankupInfo', JSON.stringify({ rank: afterRank }));
   }
   showToast("任务完成，游戏胜利！");
   removeCurrentTask();
   updateDashboard();
   updateDashboardTaskList();
   setTimeout(() => { window.location.href = "index.html"; }, 1200);
+}
+
+// 获取段位名
+function getRankNameByStar(star) {
+  const rankList = [
+    { min: 0, max: 3, name: "铜Ⅲ" },
+    { min: 4, max: 6, name: "青铜Ⅱ" },
+    { min: 7, max: 9, name: "青铜Ⅰ" },
+    { min: 10, max: 12, name: "白银Ⅲ" },
+    { min: 13, max: 15, name: "白银Ⅱ" },
+    { min: 16, max: 18, name: "白银Ⅰ" },
+    { min: 19, max: 22, name: "黄金Ⅳ" },
+    { min: 23, max: 26, name: "黄金Ⅲ" },
+    { min: 27, max: 30, name: "黄金Ⅱ" },
+    { min: 31, max: 34, name: "黄金Ⅰ" },
+    { min: 35, max: 38, name: "铂金Ⅳ" },
+    { min: 39, max: 42, name: "铂金Ⅲ" },
+    { min: 43, max: 46, name: "铂金Ⅱ" },
+    { min: 47, max: 50, name: "铂金Ⅰ" },
+    { min: 51, max: 55, name: "钻石Ⅴ" },
+    { min: 56, max: 60, name: "钻石Ⅳ" },
+    { min: 61, max: 65, name: "钻石Ⅲ" },
+    { min: 66, max: 70, name: "钻石Ⅱ" },
+    { min: 71, max: 75, name: "钻石Ⅰ" },
+    { min: 76, max: 80, name: "星耀Ⅴ" },
+    { min: 81, max: 85, name: "星耀Ⅳ" },
+    { min: 86, max: 90, name: "星耀Ⅲ" },
+    { min: 91, max: 95, name: "星耀Ⅱ" },
+    { min: 96, max: 100, name: "星耀Ⅰ" },
+    { min: 101, max: 109, name: "最强王者" },
+    { min: 110, max: 124, name: "非凡王者" },
+    { min: 125, max: 134, name: "无双王者" },
+    { min: 135, max: 149, name: "绝世王者" },
+    { min: 150, max: 174, name: "至圣王者" },
+    { min: 175, max: 199, name: "荣耀王者" },
+    { min: 200, max: 9999, name: "传奇王者" }
+  ];
+  let rank = rankList.find(r => star >= r.min && star <= r.max) || rankList[rankList.length-1];
+  return rank.name;
 }
 
 // 移除当前任务
@@ -289,6 +356,7 @@ function removeCurrentTask() {
 
 // 游戏失败
 function gameFailed() {
+  playEffectAudio("fail.mp3");
   clearInterval(countdownInterval);
   let data = GameData.get();
   if (data.score >= 80) {
@@ -432,20 +500,30 @@ function startLotteryDraw() {
 function signIn() {
   let data = GameData.get();
   let now = new Date();
+  let todayStr = getLocalDateStr(now);
   let currentHours = now.getHours();
-  let todayStr = now.toISOString().slice(0, 10);
+  let currentMinutes = now.getMinutes();
   if (!data.signInHistory) data.signInHistory = {};
-  if (currentHours >= 6 && currentHours < 12) {
-    let lastSignIn = data.lastSignInDate ? new Date(data.lastSignInDate) : null;
-    if (lastSignIn && lastSignIn.toDateString() === now.toDateString()) {
-      document.getElementById("signInMessage").textContent = "今天已经签到过了！";
-      return;
-    }
+
+  // 判断是否已签到
+  let lastSignIn = data.lastSignInDate ? new Date(data.lastSignInDate) : null;
+  if (lastSignIn && lastSignIn.toDateString() === now.toDateString() && data.signInHistory[todayStr] === "signed") {
+    document.getElementById("signInMessage").textContent = "今天已经签到过了！";
+    return;
+  }
+
+  // 判断时间段
+  const nowMinutes = currentHours * 60 + currentMinutes;
+  const startSign = 6 * 60; // 06:00
+  const endSign = 15 * 60;  // 12:00
+
+  if (nowMinutes >= startSign && nowMinutes < endSign) {
+    // 06:00:00 - 11:59:59 签到成功
     data.coins += 5;
     data.lotteryChances += 1;
     let yesterday = new Date(now);
     yesterday.setDate(now.getDate() - 1);
-    if (lastSignIn && lastSignIn.toDateString() === yesterday.toDateString()) {
+    if (lastSignIn && lastSignIn.toDateString() === yesterday.toDateString() && data.signInHistory[getLocalDateStr(yesterday)] === "signed") {
       data.consecutiveSignIn += 1;
     } else {
       data.consecutiveSignIn = 1;
@@ -472,12 +550,23 @@ function signIn() {
     data.signInHistory[todayStr] = "signed";
     GameData.set(data);
     document.getElementById("signInMessage").textContent = "签到成功！奖励已发放。";
-    renderCalendar(); // 刷新日历
-  } else {
-    document.getElementById("signInMessage").textContent = "请在规定时间内（06:00 - 12:00）完成签到";
+    renderCalendar();
+    return;
+  } else if (nowMinutes < startSign || nowMinutes >= endSign) {
+    // 00:00:00-05:59:59 或 12:00:00-23:59:59
+    document.getElementById("signInMessage").textContent = "请在规定时间内完成签到";
+    renderCalendar();
+    return;
+  }
+  // 超过11:59:59，判定为签到失败（理论上不会走到这里，但保留逻辑）
+  if (nowMinutes >= endSign) {
+    data.consecutiveSignIn = 0;
+    data.lastSignInDate = now;
     data.signInHistory[todayStr] = "failed";
     GameData.set(data);
+    document.getElementById("signInMessage").textContent = "签到失败，连续签到已重置。";
     renderCalendar();
+    return;
   }
 }
 
@@ -500,7 +589,7 @@ function renderCalendar() {
   while (month > 11) { year++; month -= 12; }
   let firstDay = new Date(year, month, 1);
   let lastDay = new Date(year, month + 1, 0);
-  let todayStr = (new Date()).toISOString().slice(0, 10);
+  let todayStr = getLocalDateStr(new Date());
 
   // 日历头部
   let html = `<div id="calendar-nav">
@@ -518,7 +607,7 @@ function renderCalendar() {
   // 填充日期
   for (let d = 1; d <= lastDay.getDate(); d++) {
     let dateObj = new Date(year, month, d);
-    let dateStr = dateObj.toISOString().slice(0, 10);
+    let dateStr = getLocalDateStr(dateObj);
     let cls = "";
     if (data.signInHistory[dateStr] === "signed") cls = "signed";
     else if (data.signInHistory[dateStr] === "failed") cls = "failed";
@@ -533,8 +622,6 @@ function renderCalendar() {
 
   calendarDiv.innerHTML = html;
 }
-
-
 
 // ---------------------------
 // 金币商城模块
@@ -626,9 +713,196 @@ function initEventListeners() {
   }
 }
 
+// index.html专用：背景音乐播放按钮逻辑
+function setupIndexBgmControl() {
+  const bgmBtn = document.getElementById('bgmToggleBtn');
+  const bgmAudio = document.getElementById('indexBgAudio');
+  if (!bgmBtn || !bgmAudio) return;
+  let isPlaying = false;
+  bgmBtn.addEventListener('click', function() {
+    if (!isPlaying) {
+      bgmAudio.currentTime = 0;
+      bgmAudio.play();
+      bgmBtn.textContent = '关闭背景音乐';
+      isPlaying = true;
+    } else {
+      bgmAudio.pause();
+      bgmAudio.currentTime = 0;
+      bgmBtn.textContent = '播放背景音乐';
+      isPlaying = false;
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   GameData.initialize();
   checkAndResetRankSystem();
   recoverEnergyOnLoad();
   initEventListeners();
+  setupIndexBgmControl(); // 新增：主页背景音乐按钮
+  // 检查是否有升段信息
+  const rankupInfo = localStorage.getItem('rankupInfo');
+  if (rankupInfo) {
+    try {
+      const info = JSON.parse(rankupInfo);
+      if (info.rank) {
+        showRankupModal(info.rank);
+      }
+    } catch(e) {}
+    localStorage.removeItem('rankupInfo');
+  }
 });
+
+// 段位可视化渲染
+function renderRankPanel() {
+  const data = GameData.get();
+  const star = data.starRating || 0;
+  // 段位分级
+  const rankList = [
+    { min: 0, max: 3, name: "铜Ⅲ", icon: "🥉", need: 4 },
+    { min: 4, max: 6, name: "青铜Ⅱ", icon: "🥉", need: 3 },
+    { min: 7, max: 9, name: "青铜Ⅰ", icon: "🥉", need: 3 },
+    { min: 10, max: 12, name: "白银Ⅲ", icon: "🥈", need: 3 },
+    { min: 13, max: 15, name: "白银Ⅱ", icon: "🥈", need: 3 },
+    { min: 16, max: 18, name: "白银Ⅰ", icon: "🥈", need: 3 },
+    { min: 19, max: 22, name: "黄金Ⅳ", icon: "🥇", need: 4 },
+    { min: 23, max: 26, name: "黄金Ⅲ", icon: "🥇", need: 4 },
+    { min: 27, max: 30, name: "黄金Ⅱ", icon: "🥇", need: 4 },
+    { min: 31, max: 34, name: "黄金Ⅰ", icon: "🥇", need: 4 },
+    { min: 35, max: 38, name: "铂金Ⅳ", icon: "🎖️", need: 4 },
+    { min: 39, max: 42, name: "铂金Ⅲ", icon: "🎖️", need: 4 },
+    { min: 43, max: 46, name: "铂金Ⅱ", icon: "🎖️", need: 4 },
+    { min: 47, max: 50, name: "铂金Ⅰ", icon: "🎖️", need: 4 },
+    { min: 51, max: 55, name: "钻石Ⅴ", icon: "🧱", need: 5 },
+    { min: 56, max: 60, name: "钻石Ⅳ", icon: "🧱", need: 5 },
+    { min: 61, max: 65, name: "钻石Ⅲ", icon: "🧱", need: 5 },
+    { min: 66, max: 70, name: "钻石Ⅱ", icon: "🧱", need: 5 },
+    { min: 71, max: 75, name: "钻石Ⅰ", icon: "🧱", need: 5 },
+    { min: 76, max: 80, name: "星耀Ⅴ", icon: "🏅", need: 5 },
+    { min: 81, max: 85, name: "星耀Ⅳ", icon: "🏅", need: 5 },
+    { min: 86, max: 90, name: "星耀Ⅲ", icon: "🏅", need: 5 },
+    { min: 91, max: 95, name: "星耀Ⅱ", icon: "🏅", need: 5 },
+    { min: 96, max: 100, name: "星耀Ⅰ", icon: "🏅", need: 5 },
+    { min: 101, max: 109, name: "最强王者", icon: "🏆", need: 9 },
+    { min: 110, max: 124, name: "非凡王者", icon: "😠", need: 15 },
+    { min: 125, max: 134, name: "无双王者", icon: "😡", need: 10 },
+    { min: 135, max: 149, name: "绝世王者", icon: "👺", need: 15 },
+    { min: 150, max: 174, name: "至圣王者", icon: "💀", need: 25 },
+    { min: 175, max: 199, name: "荣耀王者", icon: "🫤", need: 25 },
+    { min: 200, max: 9999, name: "传奇王者", icon: "👹", need: 100 }
+  ];
+  let rank = rankList.find(r => star >= r.min && star <= r.max) || rankList[rankList.length-1];
+  let currentStars = star - rank.min;
+  let needStars = rank.need;
+  // 段位名与图标
+  const rankVisual = document.getElementById("rankVisual");
+  if (rankVisual) {
+    let starsHtml = '';
+    for (let i = 0; i < needStars; i++) {
+      if (i < currentStars) {
+        starsHtml += '<span class="star-visual">★</span>';
+      } else {
+        starsHtml += '<span class="star-visual" style="opacity:.25;filter:grayscale(1);">★</span>';
+      }
+    }
+    rankVisual.innerHTML = `<span>${rank.icon}</span><span>${rank.name}</span>${starsHtml}`;
+  }
+  // 星星进度条
+  const bar = document.getElementById("starProgressBar");
+  if (bar) {
+    let percent = Math.min(100, (currentStars / needStars) * 100);
+    bar.style.width = percent + "%";
+    bar.textContent = `${currentStars}/${needStars} 星`;
+  }
+  // 升段提示
+  const info = document.getElementById("starInfo");
+  if (info) {
+    if (currentStars < needStars) {
+      info.textContent = `再获得 ${needStars - currentStars} 星可升至下一个段位！`;
+    } else {
+      info.textContent = `恭喜！即将升段！`;
+    }
+  }
+}
+
+// 弹窗+音效函数
+function showRankupModal(rankName) {
+  const modal = document.getElementById('rankupModal');
+  const title = document.getElementById('rankupTitle');
+  const desc = document.getElementById('rankupDesc');
+  if (modal && title && desc) {
+    title.textContent = `恭喜进入${rankName}段位！`;
+    desc.textContent = `新的挑战已经开启，继续加油！`;
+    modal.style.display = 'flex';
+    // 播放音效，增强兼容性
+    const audio = document.getElementById('rankupAudio');
+    if (audio) {
+      audio.currentTime = 0;
+      audio.muted = false;
+      // 尝试多次播放，提升成功率
+      const tryPlay = () => {
+        const p = audio.play();
+        if (p && typeof p.then === 'function') {
+          p.catch(() => {
+            setTimeout(() => audio.play(), 200);
+          });
+        }
+      };
+      tryPlay();
+      // 用户点击弹窗时再尝试播放一次
+      modal.addEventListener('click', tryPlay, { once: true });
+    }
+  }
+}
+
+// 工具函数：获取本地日期字符串（yyyy-mm-dd）
+function getLocalDateStr(date) {
+  const y = date.getFullYear();
+  const m = (date.getMonth() + 1).toString().padStart(2, '0');
+  const d = date.getDate().toString().padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+// 新增：倒计时页面专用时钟（美观简约，位于任务名和倒计时之间）
+function updateCountdownClock() {
+  const clockElem = document.getElementById("countdownClock");
+  if (!clockElem) return;
+  const now = new Date();
+  const days = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+  const dayName = days[now.getDay()];
+  const year = now.getFullYear();
+  const month = (now.getMonth() + 1).toString().padStart(2, "0");
+  const date = now.getDate().toString().padStart(2, "0");
+  const hours24 = now.getHours();
+  const minutes = now.getMinutes().toString().padStart(2, "0");
+  const seconds = now.getSeconds().toString().padStart(2, "0");
+  const period = hours24 >= 12 ? "PM" : "AM";
+  const hours12 = (hours24 % 12 === 0 ? 12 : hours24 % 12).toString().padStart(2, "0");
+  // 需求为24小时制但加PM/AM
+  const hoursShow = hours24.toString().padStart(2, "0");
+  clockElem.textContent = `${dayName} ${year}.${month}.${date} ${period}${hoursShow}:${minutes}:${seconds}`;
+}
+// 页面加载时只在倒计时页面启用
+if (window.location.pathname.endsWith('countdown.html')) {
+  setInterval(updateCountdownClock, 1000);
+  updateCountdownClock();
+}
+
+// 首页专用：左上角吸附时钟
+function updateMainPageClock() {
+  const clockElem = document.getElementById("mainPageClock");
+  if (!clockElem) return;
+  const now = new Date();
+  const weekArr = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+  const h = now.getHours().toString().padStart(2, "0");
+  const m = now.getMinutes().toString().padStart(2, "0");
+  const s = now.getSeconds().toString().padStart(2, "0");
+  const mon = (now.getMonth() + 1).toString().padStart(2, "0");
+  const d = now.getDate().toString().padStart(2, "0");
+  const week = weekArr[now.getDay()];
+  clockElem.innerHTML = `${h}:${m}:${s}<br>${mon}/${d} ${week}`;
+}
+if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '/index.html') {
+  setInterval(updateMainPageClock, 1000);
+  updateMainPageClock();
+}
